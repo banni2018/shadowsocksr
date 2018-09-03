@@ -1,31 +1,31 @@
-FROM alpine:3.6
+# Dockerfile for Shadowsocks-Python based alpine
+# Copyright (C) 2018 Teddysun <i@teddysun.com>
+# Reference URL:
+# https://github.com/shadowsocks/shadowsocks/tree/master
 
-ENV SERVER_ADDR     0.0.0.0
-ENV SERVER_PORT     51348
-ENV PASSWORD        psw
-ENV METHOD          aes-128-ctr
-ENV PROTOCOL        auth_aes128_md5
-ENV PROTOCOLPARAM   32
-ENV OBFS            http_post
-ENV TIMEOUT         300
-ENV DNS_ADDR        8.8.8.8
-ENV DNS_ADDR_2      8.8.4.4
+FROM python:3.6-alpine
+LABEL maintainer="Teddysun <i@teddysun.com>"
 
-ARG BRANCH=manyuser
-ARG WORK=~
+RUN runDeps="\
+		unzip \
+		wget \
+		libsodium-dev \
+		openssl \
+		mbedtls \
+	"; \
+	set -ex \
+	&& apk add --no-cache --virtual .build-deps ${runDeps} \
+	&& cd /tmp \
+	&& wget -O shadowsocks.zip https://github.com/shadowsocks/shadowsocks/archive/master.zip \
+	&& unzip shadowsocks.zip \
+	&& cd shadowsocks-master \
+	&& python setup.py install \
+	&& cd /tmp \
+	&& rm -fr shadowsocks.zip shadowsocks-master 
 
+COPY config_sample.json /etc/shadowsocks-python/config.json
+VOLUME /etc/shadowsocks-python
 
-RUN apk --no-cache add python \
-    libsodium \
-    wget
+USER nobody
 
-
-RUN mkdir -p $WORK && \
-    wget -qO- --no-check-certificate https://github.com/shadowsocks/shadowsocks/archive/master.zip | tar -xzf - -C $WORK
-
-
-WORKDIR $WORK/shadowsocksr-$BRANCH/shadowsocks
-
-
-EXPOSE $SERVER_PORT
-CMD python server.py -p $SERVER_PORT -k $PASSWORD -m $METHOD -O $PROTOCOL -o $OBFS -G $PROTOCOLPARAM
+CMD [ "ssserver", "-c", "/etc/shadowsocks-python/config.json" ]
