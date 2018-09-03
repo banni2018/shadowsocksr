@@ -6,7 +6,7 @@ ENV PASSWORD        psw
 ENV METHOD          aes-128-ctr
 ENV PROTOCOL        auth_aes128_md5
 ENV PROTOCOLPARAM   32
-ENV OBFS            tls1.2_ticket_auth_compatible
+ENV OBFS            http_post
 ENV TIMEOUT         300
 ENV DNS_ADDR        8.8.8.8
 ENV DNS_ADDR_2      8.8.4.4
