@@ -1,5 +1,5 @@
 ShadowsocksR
-===========
+===================
 
 [![Build Status]][Travis CI]
 
